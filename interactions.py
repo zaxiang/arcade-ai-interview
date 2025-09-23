@@ -76,24 +76,42 @@ def extract_interactions(flow):
 
     events = sorted(events, key=_time)
 
+    last_kind = None
     for ev in events:
         etype = ev.get("type")
 
         if etype == "typing":
             interactions.append(Interaction("typing", "Typed in search bar"))
+            last_kind = "typing"
             continue
 
         if etype == "scrolling":
-            interactions.append(Interaction("scrolling", "Scrolled the page"))
+            # collapse consecutive scrolling to reduce noise
+            if last_kind != "scrolling":
+                interactions.append(Interaction("scrolling", "Scrolled the page"))
+                last_kind = "scrolling"
             continue
 
         if etype == "click":
             click_id = ev.get("clickId")
             step = steps_by_id.get(click_id)
-            if step and step.get("type") == "IMAGE" and step.get("clickContext"):
-                interactions.append(_describe_click_from_step(step))
+            if step and step.get("type") == "IMAGE":
+                if step.get("clickContext"):
+                    interactions.append(_describe_click_from_step(step))
+                else:
+                    # Fallback to hotspot hint if available
+                    page = step.get("pageContext") or {}
+                    title = page.get("title")
+                    url = page.get("url")
+                    hotspots = step.get("hotspots") or []
+                    label = hotspots[0].get("label") if hotspots else None
+                    if label:
+                        interactions.append(Interaction("hint", label, title, url))
+                    else:
+                        interactions.append(Interaction("click", "Clicked", title, url))
             else:
                 interactions.append(Interaction("click", "Clicked"))
+            last_kind = "click"
             continue
 
         # Ignore "dragging" event type because this is not an interaction

@@ -1,62 +1,56 @@
-# Arcade AI Interview Challenge
+## Project overview
 
-Welcome to the Arcade AI Interview Challenge! This project tests your ability to work with AI multimodal APIs, and be creative with your problem solving
+This tool analyzes an Arcade `flow.json` and produces:
+- Interactions: a human-readable list of user actions
+- Summary: a concise description of what the user was trying to accomplish
+- Social image: a creative shareable image representing the flow
 
-## 🎯 Challenge Overview
+Outputs are written to the project root as `interactions.md`, `summary.md`, and `social.png`.
 
-You've been provided with a `flow.json` file that contains data from an Arcade flow recording. Your task is to build a script that analyzes this flow data and creates a comprehensive report.
+## Prerequisites
+- Python 3.10+
+- An OpenAI API key in local `.env` file with:
+  - `OPENAI_API_KEY=sk-...`
 
-## 📋 Requirements
+## Install
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-Your application should accomplish the following:
+## Run each task
 
-1. **Identify User Interactions**: List out the actions the user did in a human readable format (i.e. "Clicked on checkout", "Search for X")
-2. **Generate Human-Friendly Summary**: Create a clear, readable summary of what the user was trying to accomplish
-3. **Create a Social Media Image**: Generate an creative image suitable for sharing on social platforms that represents the flow and would drive engagement
+### Task 1 — Identify User Interactions
+Generates `interactions.md` and prints the lines to the console.
+```bash
+python interactions_report.py
+```
 
-These items should be then displayed in a **markdown file** that can be committed in your project
+### Task 2 — Generate Human-Friendly Summary (AI with fallback)
+Writes `summary.md`. Defaults to AI; falls back to a template if the API fails.
+```bash
+python ai_summary.py
+```
 
-## 🛠️ Technical Requirements
+### Task 3 — Create a Social Media Image (AI)
+Creates `social.png`. Uses OpenAI Images (1024x1024), then letterboxes to 1200x630 for social.
+```bash
+python ai_image.py
+```
 
-- **Language**: Any
-- **AI Integration**: You will be provided an OpenAI API key, but feel free to use providers you have accounts with
-- **Version Control**: Use GitHub/Bitbucket to track your work - we want to see your development process and commit history
+## End-to-end quickstart
+```bash
+python interactions_report.py && python ai_summary.py && python ai_image.py
+```
 
-## 🔒 Security Note
+## How each task is approached
+- Interactions: I parse `capturedEvents` in chronological order and enrich click events using the corresponding IMAGE-step `clickContext` .
+- Summary: I use OpenAI (chat completions) to produce a clear description; if the AI call fails, it will fall back to a concise template-based summary.
+- Social image: I build a prompt from the product and color cues found in interactions in step1 and include subtle UI metaphors (search bar, product card, primary action button, cart badge). I then generate an image via OpenAI Images at 1024×1024 and letterbox it to 1200×630 for sharing.
 
-**IMPORTANT**: Never commit your API key to version control! Use environment variables or a `.env` file (and add it to `.gitignore`) to keep your API key secure.
-
-## 📁 Project Structure
-
-You'll be provided with:
-- `flow.json` - The flow data to analyze
-- OpenAI API key 
-
-
-Your application should generate:
-- A comprehensive markdown report
-- A social media image file
-
-## 🎨 Arcade Flow Reference
-
-The flow data comes from this Arcade recording: https://app.arcade.software/share/2RnSqfsV4EsODmUiPKoW
-
-You can view the original flow to understand what the user was doing, your solution should be general purpose enough to work for most Arcade flows.
-
-## 💡 Hints
-
-- The `flow.json` contains different types of steps (IMAGE, CHAPTER, VIDEO, etc.)
-- Each step has metadata about what the user clicked and when
-- Think about how to structure your analysis for maximum clarity
-- The social media image should be professional and represent the flow's purpose
-- Feel free to use different models types to both understand the flow and generate the image
-
-## 💰 Cost Management
-
-We do have API limits, and since you'll likely run this script multiple times during development and testing, we strongly recommend implementing caching for expensive API responses.
-
-This will help you stay within API rate limits and keep costs manageable while iterating on your solution.
+## Potential improvements
+- Generalize parsing across more Arcade step types (beyond IMAGE/VIDEO/CHAPTER) and improve fuzzy mapping between `capturedEvents` and steps.
+- Smarter color/product extraction.
+- Caching of AI responses and images using content hashes (to reduce cost and re-runs).
 
 
-## Good luck! 
-We're excited to see your creative approach to this challenge.
