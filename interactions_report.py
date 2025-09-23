@@ -21,6 +21,7 @@ def main():
     flow = read_flow("flow.json")
     interactions = extract_interactions(flow)
 
+    print("========== Identifying User Interactions ==========")
     # Print for quick testing
     for line in _to_lines(interactions):
         print(line)

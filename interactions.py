@@ -54,6 +54,21 @@ def _describe_click_from_step(step):
     if element_type == "link":
         return Interaction("navigate", "Opened cart", title, url)
 
+    # CSS selector heuristics when text is empty
+    if not text and css:
+        if any(k in css for k in ["addtocart", "add-to-cart", "add_to_cart", "addtocartbutton", "addtobag", "add-to-bag"]):
+            return Interaction("click", "Clicked 'Add to cart' button", title, url)
+        if any(k in css for k in ["checkout", "proceed-to-checkout", "proceed_to_checkout", "begin-checkout", "begin_checkout"]):
+            return Interaction("click", "Clicked 'Checkout'", title, url)
+        if "search" in css:
+            return Interaction("click", "Clicked search input", title, url)
+        if "filter" in css:
+            return Interaction("click", "Opened filters", title, url)
+        if any(k in css for k in ["next", "continue", "continue-button", "continue_btn"]):
+            return Interaction("click", "Clicked 'Next'", title, url)
+        if "submit" in css:
+            return Interaction("click", "Clicked 'Submit'", title, url)
+
     # Fallbacks
     if text:
         return Interaction("click", "Clicked '{}'".format(text), title, url)

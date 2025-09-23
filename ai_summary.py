@@ -113,6 +113,8 @@ def main():
     """
     Execute Task 2.
     """
+    print("========== Generating Human-Friendly Summary ==========")
+    
     flow = read_flow("flow.json")
     interactions = extract_interactions(flow)
 

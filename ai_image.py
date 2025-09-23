@@ -143,6 +143,7 @@ def main():
     """
     Execute Task 3.
     """
+    print("========== Generating Social Media Image ==========")
     flow = read_flow("flow.json")
     interactions = extract_interactions(flow)
 
