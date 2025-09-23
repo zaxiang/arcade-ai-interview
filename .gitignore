@@ -10,10 +10,10 @@ venv/
 .env.*
 .cache/
 
-# Outputs
-report.md
-social.*
-interactions.md
+# # Outputs
+# summary.md
+# social.*
+# interactions.md
 
 # macOS
 .DS_Store
